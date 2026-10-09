@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1b2620">
+    <title>مختبر تفاعلات الأحماض والقواعد - رغد العتيبي</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --page: #1b2620;
+            --panel: #0f3d30;
+            --panel-light: #175c48;
+            --mint: #a4d4c4;
+            --gold: #ffe082;
+            --ink: #0f3d30;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Cairo", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 12px;
+            overflow-x: hidden;
+            background: var(--page);
+            color: #333;
+        }
+
+        button, summary {
+            font: inherit;
+        }
+
+        button:focus-visible, summary:focus-visible, a:focus-visible {
+            outline: 3px solid var(--gold);
+            outline-offset: 3px;
+        }
+
+        .app-container {
+            width: min(100%, 440px);
+            overflow: hidden;
+            border: 4px solid #0a3025;
+            border-radius: 30px;
+            background: #eef7f4;
+            box-shadow: 0 15px 35px rgb(0 0 0 / 40%);
+        }
+
+        .app-header {
+            padding: 23px 20px 19px;
+            border-bottom: 2px solid #d0e8e1;
+            background: linear-gradient(135deg, #e0f2f1, #fff);
+            text-align: center;
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            color: #5a8276;
+            font-size: 0.7rem;
+        }
+
+        .app-header h1 {
+            margin: 15px 0 5px;
+            color: var(--ink);
+            font-size: clamp(1.15rem, 5vw, 1.45rem);
+            font-weight: 800;
+            line-height: 1.5;
+        }
+
+        .app-header p {
+            color: #446e61;
+            font-size: 0.8rem;
+            line-height: 1.8;
+        }
+
+        .lab-section {
+            padding: 16px;
+            margin: 15px;
+            border-radius: 20px;
+            background: var(--panel);
+            color: #fff;
+        }
+
+        .section-heading {
+            margin-bottom: 5px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .section-hint {
+            margin-bottom: 13px;
+            color: var(--mint);
+            font-size: 0.74rem;
+            line-height: 1.7;
+        }
+
+        .choice-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 0 8px;
+            color: var(--mint);
+            font-size: 0.79rem;
+            font-weight: 700;
+        }
+
+        .choice-heading small {
+            color: #80b5a2;
+            font-size: 0.65rem;
+            font-weight: 400;
+        }
+
+        .chem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .chem-card {
+            min-width: 0;
+            min-height: 105px;
+            padding: 9px 6px;
+            border: 1px solid rgb(255 255 255 / 15%);
+            border-radius: 12px;
+            background: rgb(255 255 255 / 5%);
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+        }
+
+        .chem-card:hover {
+            background: rgb(255 255 255 / 9%);
+        }
+
+        .chem-card:active {
+            transform: scale(0.98);
+        }
+
+        .chem-card[aria-pressed="true"] {
+            border: 2px solid var(--gold);
+            background: rgb(255 224 130 / 12%);
+        }
+
+        .chem-formula {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--gold);
+            direction: ltr;
+            font-family: "Segoe UI", sans-serif;
+            font-size: 1.07rem;
+            font-weight: 800;
+        }
+
+        .chem-name {
+            display: block;
+            min-height: 2.6em;
+            font-size: 0.68rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .chem-strength {
+            display: block;
+            margin-top: 4px;
+            color: var(--mint);
+            font-size: 0.6rem;
+        }
+
+        .selected-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 13px 0;
+        }
+
+        .selected-pill {
+            padding: 8px;
+            border: 1px solid rgb(255 255 255 / 11%);
+            border-radius: 10px;
+            background: rgb(0 0 0 / 13%);
+            color: #d6e9e1;
+            font-size: 0.68rem;
+            text-align: center;
+        }
+
+        .selected-pill strong {
+            display: block;
+            margin-top: 3px;
+            color: var(--gold);
+            font-size: 0.78rem;
+        }
+
+        .react-button {
+            width: 100%;
+            min-height: 48px;
+            padding: 10px;
+            border: 0;
+            border-radius: 12px;
+            background: var(--gold);
+            color: #24352d;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 800;
+            transition: filter 0.15s ease, transform 0.15s ease;
+        }
+
+        .react-button:hover:not(:disabled) {
+            filter: brightness(0.96);
+        }
+
+        .react-button:active:not(:disabled) {
+            transform: scale(0.99);
+        }
+
+        .react-button:disabled {
+            background: #71877d;
+            color: #e0e9e4;
+            cursor: not-allowed;
+        }
+
+        .result-panel {
+            padding: 13px;
+            margin-top: 13px;
+            border: 1px solid rgb(255 255 255 / 13%);
+            border-radius: 14px;
+            background: rgb(0 0 0 / 16%);
+        }
+
+        .result-panel[hidden] {
+            display: none;
+        }
+
+        .result-title {
+            margin-bottom: 9px;
+            color: var(--gold);
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .reaction-equation {
+            padding: 11px 8px;
+            border: 1px dashed rgb(255 255 255 / 19%);
+            border-radius: 10px;
+            background: rgb(255 255 255 / 4%);
+            color: #fff;
+            direction: ltr;
+            font-family: "Segoe UI", sans-serif;
+            font-size: clamp(0.78rem, 3.7vw, 0.95rem);
+            font-weight: 700;
+            line-height: 1.7;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .conjugate-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 9px;
+        }
+
+        .conjugate-item {
+            padding: 9px 7px;
+            border-radius: 9px;
+            background: rgb(255 255 255 / 7%);
+            color: #c6ded4;
+            font-size: 0.66rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .conjugate-item strong {
+            display: block;
+            color: var(--gold);
+            direction: ltr;
+            font-family: "Segoe UI", sans-serif;
+            font-size: 0.88rem;
+        }
+
+        .result-note {
+            margin-top: 9px;
+            color: #c6ded4;
+            font-size: 0.69rem;
+            line-height: 1.7;
+        }
+
+        .water-card {
+            padding: 15px;
+            margin: 0 15px 14px;
+            border: 1px solid #cde3da;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #fff, #e5f4ef);
+            box-shadow: 0 3px 12px rgb(0 0 0 / 5%);
+        }
+
+        .water-card summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            color: var(--ink);
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 800;
+            list-style: none;
+        }
+
+        .water-card summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .water-card summary::after {
+            color: #34836a;
+            content: "＋";
+            font-size: 1.1rem;
+        }
+
+        .water-card[open] summary::after {
+            content: "−";
+        }
+
+        .water-body {
+            padding-top: 11px;
+            margin-top: 10px;
+            border-top: 1px solid #d9eae3;
+            color: #4b5e55;
+            font-size: 0.76rem;
+            line-height: 1.8;
+        }
+
+        .water-body p + p {
+            margin-top: 7px;
+        }
+
+        .ion-list {
+            color: #175c48;
+            font-weight: 700;
+        }
+
+        .source-link {
+            color: #17684e;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .accuracy-note {
+            padding: 9px;
+            margin-top: 9px;
+            border-right: 3px solid #d09b32;
+            border-radius: 5px;
+            background: #fff7df;
+            color: #665428;
+            font-size: 0.71rem;
+        }
+
+        .info-section {
+            padding: 0 15px 4px;
+        }
+
+        .info-section details {
+            margin-bottom: 9px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 2px 5px rgb(0 0 0 / 5%);
+        }
+
+        .info-section summary {
+            display: flex;
+            min-height: 48px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 14px;
+            color: var(--ink);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 700;
+            list-style: none;
+        }
+
+        .info-section summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .info-section summary:hover {
+            background: #f4fbf9;
+        }
+
+        .info-section details[open] summary {
+            border-bottom: 1px solid #edf3f0;
+        }
+
+        .info-section summary::after {
+            color: #175c48;
+            content: "▼";
+            font-size: 0.68rem;
+            transition: transform 0.2s ease;
+        }
+
+        .info-section details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .info-content {
+            padding: 12px 14px 14px;
+            color: #555;
+            font-size: 0.76rem;
+            line-height: 1.8;
+        }
+
+        .info-content p + p {
+            margin-top: 7px;
+        }
+
+        .app-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+            padding: 14px;
+            margin: 10px 15px 15px;
+            border-radius: 15px;
+            background: var(--panel);
+            color: #fff;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .footer-title {
+            grid-column: 1 / -1;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgb(255 255 255 / 12%);
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .footer-item {
+            padding: 7px 5px;
+            border-radius: 8px;
+            background: rgb(255 255 255 / 8%);
+        }
+
+        .footer-label {
+            color: var(--mint);
+            font-size: 0.65rem;
+        }
+
+        .footer-val {
+            font-weight: 700;
+        }
+
+        @media (max-width: 360px) {
+            body {
+                padding: 10px 7px;
+            }
+
+            .app-container {
+                border-width: 3px;
+                border-radius: 24px;
+            }
+
+            .app-header {
+                padding-right: 13px;
+                padding-left: 13px;
+            }
+
+            .lab-section {
+                padding: 12px;
+                margin: 11px;
+            }
+
+            .chem-grid {
+                gap: 5px;
+            }
+
+            .chem-card {
+                padding-right: 3px;
+                padding-left: 3px;
+            }
+
+            .chem-name {
+                font-size: 0.62rem;
+            }
+
+            .chem-strength {
+                font-size: 0.55rem;
+            }
+
+            .water-card {
+                margin-right: 11px;
+                margin-left: 11px;
+            }
+
+            .info-section {
+                padding-right: 11px;
+                padding-left: 11px;
+            }
+
+            .app-footer {
+                margin-right: 11px;
+                margin-left: 11px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-container">
+        <header class="app-header">
+            <div class="meta-row">
+                <span>الثالث الثانوي</span>
+                <span>● كيمياء تفاعلية</span>
+            </div>
+            <h1>مختبر تفاعلات الأحماض والقواعد</h1>
+            <p>اختاري حمضاً وقاعدة، ثم شاهدي التفاعل والحمض والقاعدة المرافقين.</p>
+        </header>
+
+        <section class="lab-section" aria-labelledby="labHeading">
+            <h2 class="section-heading" id="labHeading">اختاري المواد لتكوين تفاعل</h2>
+            <p class="section-hint">اختاري مادة واحدة من كل مجموعة. تظهر قوة كل مادة ودرجة تأينها أو ثابتها عند توفره.</p>
+
+            <div class="choice-heading">
+                <span>الأحماض</span>
+                <small>اختاري حمضاً واحداً</small>
+            </div>
+            <div class="chem-grid" id="acidChoices" role="group" aria-label="اختيار الحمض"></div>
+
+            <div class="choice-heading">
+                <span>القواعد</span>
+                <small>اختاري قاعدة واحدة</small>
+            </div>
+            <div class="chem-grid" id="baseChoices" role="group" aria-label="اختيار القاعدة"></div>
+
+            <div class="selected-summary" aria-live="polite">
+                <div class="selected-pill">الحمض المختار<strong id="selectedAcid">لم يُحدد بعد</strong></div>
+                <div class="selected-pill">القاعدة المختارة<strong id="selectedBase">لم تُحدد بعد</strong></div>
+            </div>
+
+            <button class="react-button" id="reactButton" type="button" disabled>اختاري حمضاً وقاعدة أولاً</button>
+
+            <section class="result-panel" id="resultPanel" aria-live="polite" hidden>
+                <h3 class="result-title">نتيجة التفاعل</h3>
+                <div class="reaction-equation" id="reactionEquation"></div>
+                <div class="conjugate-grid">
+                    <div class="conjugate-item">القاعدة المرافقة للحمض<strong id="conjugateBase"></strong></div>
+                    <div class="conjugate-item">الحمض المرافق للقاعدة<strong id="conjugateAcid"></strong></div>
+                </div>
+                <p class="result-note" id="reactionNote"></p>
+            </section>
+        </section>
+
+        <details class="water-card">
+            <summary>💧 معلومة: ماء زمزم</summary>
+            <div class="water-body">
+                <p>ماء زمزم ماء طبيعي يحتوي على أملاح وأيونات معدنية مذابة، وليس له صيغة كيميائية واحدة مثل المركبات النقية.</p>
+                <p>من الأيونات التي تذكرها تحاليل عينات المياه: <span class="ion-list">الكالسيوم Ca²⁺، المغنيسيوم Mg²⁺، الصوديوم Na⁺، البوتاسيوم K⁺، البيكربونات HCO₃⁻، الكلوريد Cl⁻ والكبريتات SO₄²⁻</span>. تختلف التراكيز باختلاف العينة وطريقة التحليل.</p>
+                <div class="accuracy-note">للدقة العلمية: لا يمكن الجزم بأن كل عينة من ماء زمزم متعادلة تماماً؛ الرقم المتعادل هو pH = 7 عند 25°م، وقد تسجل العينات قيماً قريبة منه أو تميل قليلاً للقلوية. يلزم قياس العينة نفسها لتحديد pH بدقة.</div>
+                <p>للقراءة عن تركيب عينات ماء زمزم: <a class="source-link" href="https://doi.org/10.1016/j.heliyon.2021.e06038" target="_blank" rel="noopener noreferrer">دراسة منشورة في مجلة Heliyon (2021)</a>.</p>
+            </div>
+        </details>
+
+        <section class="info-section" aria-label="معلومات تعليمية">
+            <details>
+                <summary>ما الحمض والقاعدة المرافقان؟</summary>
+                <div class="info-content">
+                    <p>بحسب برونستد–لوري، الحمض مانح بروتون H⁺، والقاعدة مستقبلة له.</p>
+                    <p>بعد أن يفقد الحمض بروتوناً يصبح <b>قاعدته المرافقة</b>. وبعد أن تكتسب القاعدة بروتوناً تصبح <b>حمضها المرافق</b>.</p>
+                    <p>مثال: HCl + NH₃ → Cl⁻ + NH₄⁺؛ الزوجان المرافقان هما HCl/Cl⁻ وNH₄⁺/NH₃.</p>
+                </div>
+            </details>
+            <details>
+                <summary>كيف أقرأ قوة الحمض والقاعدة؟</summary>
+                <div class="info-content">
+                    <p>الحمض القوي يتأين بدرجة كبيرة في الماء، أما الضعيف فيتأين جزئياً. قيمة pKa الأقل تعني حمضاً أقوى ضمن الظروف نفسها.</p>
+                    <p>القاعدة القوية مثل OH⁻ تتفاعل عملياً مع الماء بسرعة كبيرة، بينما الأمونيا والكربونات قواعد ضعيفة تتفاعل جزئياً. قيم Ka وKb تقريبية عند 25°م وتتأثر بالوسط والتركيز.</p>
+                    <p>عند تفاعل حمض مع قاعدة، يتجه انتقال البروتون غالباً نحو تكوين الحمض الأضعف والقاعدة الأضعف.</p>
+                </div>
+            </details>
+        </section>
+
+        <footer class="app-footer">
+            <div class="footer-title">مختبر الكيمياء التفاعلي</div>
+            <div class="footer-item">
+                <div class="footer-label">الطالبة</div>
+                <div class="footer-val">رغد العتيبي</div>
+            </div>
+            <div class="footer-item">
+                <div class="footer-label">الموضوع</div>
+                <div class="footer-val">الأحماض والقواعد</div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        (() => {
+            const acids = [
+                {
+                    id: "hcl",
+                    formula: "HCl",
+                    name: "حمض الهيدروكلوريك",
+                    strength: "قوي · pKa < 0",
+                    conjugateBase: "Cl⁻",
+                    reactions: {
+                        hydroxide: {
+                            equation: "HCl + NaOH → NaCl + H₂O",
+                            conjugateAcid: "H₂O",
+                            note: "تعادل حمض قوي مع قاعدة قوية؛ المعادلة الأيونية الصافية: H⁺ + OH⁻ → H₂O."
+                        },
+                        ammonia: {
+                            equation: "HCl + NH₃ → NH₄Cl",
+                            conjugateAcid: "NH₄⁺",
+                            note: "تستقبل الأمونيا بروتوناً من الحمض، فيتكون أيون الأمونيوم."
+                        },
+                        carbonate: {
+                            equation: "2HCl + Na₂CO₃ → 2NaCl + H₂O + CO₂↑",
+                            conjugateAcid: "HCO₃⁻ (أولاً)",
+                            note: "يتكون البيكربونات أولاً عند استقبال البروتون، ثم يؤدي استمرار إضافة الحمض إلى تكوّن الماء وثاني أكسيد الكربون."
+                        }
+                    }
+                },
+                {
+                    id: "acetic",
+                    formula: "CH₃COOH",
+                    name: "حمض الإيثانويك (الخليك)",
+                    strength: "ضعيف · Ka ≈ 1.8×10⁻⁵",
+                    conjugateBase: "CH₃COO⁻",
+                    reactions: {
+                        hydroxide: {
+                            equation: "CH₃COOH + NaOH → CH₃COONa + H₂O",
+                            conjugateAcid: "H₂O",
+                            note: "يتفاعل الحمض الضعيف مع أيونات الهيدروكسيد، وينتج ماء وخلات الصوديوم."
+                        },
+                        ammonia: {
+                            equation: "CH₃COOH + NH₃ ⇌ CH₃COO⁻ + NH₄⁺",
+                            conjugateAcid: "NH₄⁺",
+                            note: "انتقال البروتون مفضّل لتكوّن الزوجين المرافقين: الخلات والأمونيوم."
+                        },
+                        carbonate: {
+                            equation: "2CH₃COOH + Na₂CO₃ → 2CH₃COONa + H₂O + CO₂↑",
+                            conjugateAcid: "HCO₃⁻ (أولاً)",
+                            note: "يتفاعل الحمض مع الكربونات، وينطلق ثاني أكسيد الكربون بعد تكوّن حمض الكربونيك."
+                        }
+                    }
+                },
+                {
+                    id: "carbonic",
+                    formula: "H₂CO₃",
+                    name: "حمض الكربونيك",
+                    strength: "ضعيف · Ka₁ ≈ 4.3×10⁻⁷",
+                    conjugateBase: "HCO₃⁻",
+                    reactions: {
+                        hydroxide: {
+                            equation: "H₂CO₃ + NaOH → NaHCO₃ + H₂O",
+                            conjugateAcid: "H₂O",
+                            note: "تمثل المعادلة إضافة مكافئ واحد من هيدروكسيد الصوديوم؛ الناتج الملحي هو بيكربونات الصوديوم."
+                        },
+                        ammonia: {
+                            equation: "H₂CO₃ + NH₃ ⇌ HCO₃⁻ + NH₄⁺",
+                            conjugateAcid: "NH₄⁺",
+                            note: "ينتقل بروتون من حمض الكربونيك إلى الأمونيا، فيتكون البيكربونات والأمونيوم."
+                        },
+                        carbonate: {
+                            equation: "H₂CO₃ + Na₂CO₃ → 2NaHCO₃",
+                            conjugateAcid: "HCO₃⁻",
+                            note: "يستقبل أيون الكربونات بروتوناً، فيتكون أيونا بيكربونات."
+                        }
+                    }
+                }
+            ];
+
+            const bases = [
+                {
+                    id: "hydroxide",
+                    formula: "NaOH",
+                    name: "هيدروكسيد الصوديوم",
+                    strength: "قاعدة قوية · يتأين كلياً",
+                    conjugateAcid: "H₂O"
+                },
+                {
+                    id: "ammonia",
+                    formula: "NH₃",
+                    name: "الأمونيا المائية",
+                    strength: "ضعيفة · Kb ≈ 1.8×10⁻⁵",
+                    conjugateAcid: "NH₄⁺"
+                },
+                {
+                    id: "carbonate",
+                    formula: "Na₂CO₃",
+                    name: "كربونات الصوديوم",
+                    strength: "ضعيفة · Kb ≈ 2.1×10⁻⁴",
+                    conjugateAcid: "HCO₃⁻"
+                }
+            ];
+
+            let selectedAcidId = null;
+            let selectedBaseId = null;
+
+            const acidChoices = document.getElementById("acidChoices");
+            const baseChoices = document.getElementById("baseChoices");
+            const reactButton = document.getElementById("reactButton");
+            const resultPanel = document.getElementById("resultPanel");
+
+            function createChemicalCard(item, group) {
+                const card = document.createElement("button");
+                card.type = "button";
+                card.className = "chem-card";
+                card.dataset.id = item.id;
+                card.setAttribute("aria-pressed", "false");
+                card.setAttribute("aria-label", `${item.name}، ${item.formula}، ${item.strength}`);
+                card.innerHTML = `<span class="chem-formula" dir="ltr">${item.formula}</span><span class="chem-name">${item.name}</span><span class="chem-strength">${item.strength}</span>`;
+                card.addEventListener("click", () => {
+                    if (group === "acid") selectedAcidId = item.id;
+                    else selectedBaseId = item.id;
+                    updateSelections();
+                });
+                return card;
+            }
+
+            function updateSelections() {
+                const acid = acids.find((item) => item.id === selectedAcidId);
+                const base = bases.find((item) => item.id === selectedBaseId);
+
+                for (const button of acidChoices.querySelectorAll("button")) {
+                    button.setAttribute("aria-pressed", String(button.dataset.id === selectedAcidId));
+                }
+                for (const button of baseChoices.querySelectorAll("button")) {
+                    button.setAttribute("aria-pressed", String(button.dataset.id === selectedBaseId));
+                }
+
+                document.getElementById("selectedAcid").textContent = acid ? `${acid.formula} · ${acid.strength.split("·")[0].trim()}` : "لم يُحدد بعد";
+                document.getElementById("selectedBase").textContent = base ? `${base.formula} · ${base.strength.split("·")[0].trim()}` : "لم تُحدد بعد";
+                reactButton.disabled = !(acid && base);
+                reactButton.textContent = acid && base ? "⚗️ أجرِ التفاعل" : "اختاري حمضاً وقاعدة أولاً";
+                resultPanel.hidden = true;
+            }
+
+            function react() {
+                const acid = acids.find((item) => item.id === selectedAcidId);
+                const base = bases.find((item) => item.id === selectedBaseId);
+                if (!acid || !base) return;
+
+                const reaction = acid.reactions[base.id];
+                document.getElementById("reactionEquation").textContent = reaction.equation;
+                document.getElementById("conjugateBase").textContent = acid.conjugateBase;
+                document.getElementById("conjugateAcid").textContent = reaction.conjugateAcid || base.conjugateAcid;
+                document.getElementById("reactionNote").textContent = reaction.note;
+                resultPanel.hidden = false;
+                resultPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+
+            for (const acid of acids) acidChoices.append(createChemicalCard(acid, "acid"));
+            for (const base of bases) baseChoices.append(createChemicalCard(base, "base"));
+            reactButton.addEventListener("click", react);
+            updateSelections();
+        })();
+    </script>
+</body>
+</html>
